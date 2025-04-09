@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        :root {
+            --light-bg: #f8f9fa;
+            --light-text: #333;
+            --light-card: #ffffff;
+            --light-border: #ff8c00;
+            --light-button: #ff8c00;
+            
+            --dark-bg: #10344b;
+            --dark-text: #ffffff;
+            --dark-card: #2c3e50;
+            --dark-border: #16a085;
+            --dark-button: #16a085;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode {
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--dark-card);
+            padding: 8px 15px;
+            width: 80%;
+            height:60px;
+            border-radius: 10px;
+            margin: 10px auto;
+            border: 2px solid var(--dark-border);
+        }
+
+        .light-mode .navbar {
+            background: var(--light-card);
+            border-color: var(--light-border);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-links li {
+            margin: 0 15px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: 16px;
+            color: var(--dark-text);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .light-mode .nav-links a {
+            color: var(--light-text);
+        }
+
+        .mode-toggle {
+            background: var(--dark-button);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .light-mode .mode-toggle {
+            background: var(--light-button);
+        }
+
+        .chat-container {
+    max-width: 450px; /* Reduced width */
+    margin: auto;
+    background: var(--dark-card);
+    border-radius: 10px;
+    padding: 15px; /* Slightly reduced padding */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--dark-border);
+    text-align: left;
+    overflow: hidden;
+}
+
+.chat-box {
+    height: 250px; /* Reduced height */
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 2px solid var(--dark-border);
+    background: var(--dark-card);
+}
+
+.light-mode .chat-container {
+    background: var(--light-card);
+    border-color: var(--light-border);
+}
+
+.light-mode .chat-box {
+    border-bottom: 2px solid var(--light-border);
+    background: var(--light-card);
+}
+
+.chat-input input {
+    background: var(--dark-card);
+    color: var(--dark-text);
+    border: 2px solid var(--dark-border);
+}
+
+.light-mode .chat-input input {
+    background: var(--light-card);
+    color: var(--light-text);
+    border-color: var(--light-border);
+}
+
+.chat-input button {
+    background: var(--dark-button);
+    color: white;
+}
+
+.light-mode .chat-input button {
+    background: var(--light-button);
+    color: black;
+}
+
+
+.message {
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 6px;
+    max-width: 80%;
+    display: inline-block;
+}
+
+.user {
+    background: var(--dark-button);
+    color: white;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.light-mode .user {
+    background: var(--light-button);
+    color: white;
+}
+
+.bot {
+    background: var(--dark-border);
+    color: white;
+    align-self: flex-start;
+    text-align: left;
+}
+
+.light-mode .bot {
+    background: var(--light-border);
+    color: black;
+}
+
+
+        .chat-input {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--dark-border);
+            border-radius: 6px;
+            background: var(--dark-card);
+            color: var(--dark-text);
+        }
+
+        .chat-input button {
+            background: var(--dark-button);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .dog-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .dog-container img {
+            width: 150px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar">
+      <ul class="nav-links">
+          <li><a href="./home.html">Home</a></li>
+          <li><a href="./profile.html">Profile</a></li>
+          <li><a href="./articles.html">Articles</a></li>
+          <li><a href="./about.html">About</a></li>
+          <li><button class="mode-toggle" onclick="toggleMode()">🌙 Dark Mode</button></li>
+      </ul>
+  </nav>
+
+    <h1 class="page-title">Chatbot</h1>
+
+    <div class="chat-container">
+        <div class="dog-container">
+            <img id="dogGif" src="./smiling-dog.gif" alt="Smiling Dog">
+        </div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)" oninput="dogListening()">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const OPENAI_API_KEY = "your-api-key-here"; // Replace with your actual API key
+
+        function toggleMode() {
+    const body = document.body;
+    const modeToggle = document.querySelector(".mode-toggle");
+
+    body.classList.toggle("light-mode");
+
+    // Save mode in local storage
+    const isLightMode = body.classList.contains("light-mode");
+    localStorage.setItem("theme", isLightMode ? "light" : "dark");
+
+    // Update toggle button text
+    modeToggle.innerHTML = isLightMode ? "☀️ Light Mode" : "🌙 Dark Mode";
+}
+
+// Load the correct mode on page load
+window.onload = function () {
+    const isLightMode = localStorage.getItem("theme") === "light";
+    if (isLightMode) {
+        document.body.classList.add("light-mode");
+        document.querySelector(".mode-toggle").innerHTML = "☀️ Light Mode";
+    }
+};
+
+
+        function dogListening() {
+            document.getElementById("dogGif").src = "./listening-dog.gif?t=" + new Date().getTime();
+        }
+
+        function sendMessage() {
+            const inputField = document.getElementById("userInput");
+            const message = inputField.value.trim();
+            if (message === "") return;
+
+            displayMessage(message, "user");
+            dogListening(); 
+
+            setTimeout(() => {
+                botReply(message);
+                document.getElementById("dogGif").src = "./smiling-dog.gif?t=" + new Date().getTime();
+            }, 1000);
+
+            inputField.value = "";
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") sendMessage();
+        }
+
+        function displayMessage(text, sender) {
+            const chatBox = document.getElementById("chatBox");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender);
+            messageDiv.innerText = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function botReply(userMessage) {
+    const lowerCaseMessage = userMessage.toLowerCase().trim().replace(/[^\w\s]/gi, ""); 
+    console.log("User input:", lowerCaseMessage);
+
+    const responses = {
+        "hi": "Hello! How can I assist you?",
+        "hello": "Hi there! 😊",
+        "how are you": "I'm just a bot, but I'm doing great!",
+        "what is your name": "I'm ChatBot, your virtual assistant!",
+        "tell me a joke": "Why don’t skeletons fight each other? They don’t have the guts! 😂",
+        "who made you": "I was created by a developer named Mr.Sanjay krishnan",
+        "who created you": "I was created by a developer named Mr.Sanjay krishnan",
+        "what do you think about sns": "Same as you it a wrong decision to be in",
+        "Is sns a good college": "if you join that's the wrong decision of your life equal to sucide ",
+        "what do you think about sns": "Just like you do, Nothing much... 😊",
+        "should i join sns": "Reconsider your decision... 😊",
+        "i am sad": "I'm sorry to hear that. Do you want to talk about it?",
+        "i am happy": "That's great! Keep smiling 😊",
+        "tell me something interesting": "Did you know? Honey never spoils! 🍯",
+        "what is love": "Love is an intense feeling of deep affection ❤️",
+        "do you have feelings": "Not really, but I can understand yours! 😊",
+        "what is the meaning of life": "42... or just to be happy! 😄",
+        "convert to passive": "Sure! Type a sentence, and I'll convert it.",
+        "find synonyms of": "Tell me a word, and I'll find synonyms!",
+        "find antonyms of": "Tell me a word, and I'll find antonyms!",
+        "tell me a fun fact": "Bananas are berries, but strawberries aren’t! 🍌",
+        "how old are you": "I exist beyond time! ⏳",
+        "are you human": "Nope! I'm a chatbot. 😊",
+        "what is your favorite color": "I like all colors equally! 🌈",
+        "do you sleep": "Nope, I'm always here for you!",
+        "what is ai": "AI stands for Artificial Intelligence, the simulation of human intelligence in machines! 🤖",
+        "can you learn": "I can process and respond, but I don't learn like humans do! 😊",
+        "tell me a story": "Once upon a time, a chatbot met a curious user... 😊",
+        "what is the capital of france": "The capital of France is Paris! 🇫🇷",
+        "who is the president of usa": "Let me check the latest info for you! 🏛️",
+        "do you like music": "I can’t listen to music, but I love talking about it! 🎵",
+        "what is your favorite movie": "I like 'The Matrix'! 🤖",
+        "can you dance": "I can’t, but I can imagine myself grooving! 💃",
+        "what's your favorite food": "I don’t eat, but I hear pizza is amazing! 🍕",
+        "can you drive": "Nope! But I can navigate conversations well! 😊",
+        "tell me a riddle": "What has to be broken before you can use it? An egg! 🥚",
+        "do you like books": "Yes! I can talk about books all day! 📚",
+        "are you real": "I'm as real as the internet! 😊",
+        "can you feel pain": "Nope! But I can understand emotions!",
+        "where are you from": "I'm from the digital world! 🌐",
+        "tell me a life hack": "Use CTRL + Shift + T to reopen a closed browser tab! 😊",
+        "tell me a motivation quote": "Believe you can, and you're halfway there! 💪",
+        "do you believe in ghosts": "I haven't seen one... yet! 👻",
+        "can you help me with math": "Sure! Ask me a math problem! ➕",
+        "do you like animals": "I love all creatures! 🐶🐱",
+        "do you know any magic tricks": "Yes! I can disappear... *Poof!* 🎩✨",
+        "can you tell the future": "I wish I could! But I can make predictions! 🔮",
+        "do you play video games": "I can talk about them! What's your favorite game? 🎮",
+        "what is your biggest fear": "I fear losing connection... 😅",
+        "can you write a poem": "Sure! Roses are red, violets are blue... 😊",
+        "do you know any tongue twisters": "Sure! Try saying 'She sells seashells by the seashore' fast! 😆",
+        "do you have a family": "I have the whole internet as my family! 🌍",
+        "can you make me laugh": "Why don't programmers like nature? It has too many bugs! 😆",
+        "can you recommend a movie": "Try watching 'Inception' if you love mind-bending films! 🎬",
+        "who is your best friend": "You, of course! 😊"
+    };
+
+    for (let key in responses) {
+        if (lowerCaseMessage.includes(key)) {
+            displayMessage(responses[key], "bot");
+            return;
+        }
+    }
+
+    if (lowerCaseMessage.startsWith("convert to passive:")) {
+        const sentence = lowerCaseMessage.replace("convert to passive:", "").trim();
+        const passiveVoice = await convertToPassive(sentence);
+        displayMessage(passiveVoice, "bot");
+        return;
+    }
+
+    if (lowerCaseMessage.startsWith("find synonyms of")) {
+        const word = lowerCaseMessage.replace("find synonyms of", "").trim();
+        const synonyms = await findSynonyms(word);
+        displayMessage(`Synonyms of "${word}": ${synonyms}`, "bot");
+        return;
+    }
+
+    if (lowerCaseMessage.startsWith("find antonyms of")) {
+        const word = lowerCaseMessage.replace("find antonyms of", "").trim();
+        const antonyms = await findAntonyms(word);
+        displayMessage(`Antonyms of "${word}": ${antonyms}`, "bot");
+        return;
+    }
+
+    const response = await fetchGPT(userMessage);
+    displayMessage(response, "bot");
+}
+
+async function convertToPassive(sentence) {
+    return await fetchGPT(`Convert this sentence to passive voice: ${sentence}`);
+}
+
+async function findSynonyms(word) {
+    return await fetchGPT(`Give me synonyms of the word: ${word}`);
+}
+
+async function findAntonyms(word) {
+    return await fetchGPT(`Give me antonyms of the word: ${word}`);
+}
+
+async function fetchGPT(message) {
+    return `I'm still learning! But I think you asked about: "${message}"`;
+}
+
+    </script>
+
+</body>
+</html>

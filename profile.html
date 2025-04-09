@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  
+  <style>
+    /* Dark Mode (Default) */
+    :root {
+      --primary-color: #1abc9c;
+      --secondary-color: #16a085;
+      --bg-color: #0F1C2E;
+      --text-color: #ffffff;
+      --card-bg: rgba(30, 45, 65, 0.9);
+      --shadow-color: rgba(26, 188, 156, 0.3);
+    }
+
+    /* Light Mode (Orange Theme) */
+    .light-mode {
+      --primary-color: #FF9800; /* Orange */
+      --secondary-color: #E65100; /* Darker Orange */
+      --bg-color: #FFFFFF;
+      --text-color: #000000;
+      --card-bg: rgba(255, 152, 0, 0.1);
+      --shadow-color: rgba(255, 152, 0, 0.3);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+
+    /* Navigation Bar */
+    .navbar {
+      position:fixed;
+      top: 0;
+      left: 5;
+      width: 80%;
+      height:40px;
+      padding: 15px 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0px 2px 5px var(--shadow-color);
+      border-top: 2px solid var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      border-left: 2px solid var(--primary-color);
+      border-right: 2px solid var(--primary-color);
+      border-radius: 10px;
+    }
+
+    .navbar .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-color);
+    }
+
+    /* Mode Toggle Button */
+    .mode-toggle {
+      background: var(--primary-color);
+      color: var(--bg-color);
+      font-weight: bold;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .mode-toggle:hover {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    /* Profile Card */
+    .profile-container {
+      max-width: 450px;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      text-align: left;
+      margin-top: 80px;
+      transition: background 0.3s ease-in-out;
+    }
+
+    /* Profile Picture */
+    .profile-pic {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .profile-pic img {
+      border-radius: 50%;
+      border: 3px solid var(--primary-color);
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+    }
+
+    /* Upload Button */
+    .upload-btn {
+      margin-top: 10px;
+      background: var(--primary-color);
+      color: var(--bg-color);
+      font-weight: bold;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .upload-btn:hover {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    /* User Details */
+    .user-info {
+      margin: 10px 0;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .user-info:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    /* Logout Button */
+    .logout-btn {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 18px;
+      text-decoration: none;
+      background: var(--primary-color);
+      color: var(--bg-color);
+      font-weight: bold;
+      border-radius: 8px;
+      transition: 0.3s ease;
+      text-align: center;
+    }
+
+    .logout-btn:hover {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <div class="navbar">
+      <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/articles">Article</a>
+          <a href="/profile">Profile</a>
+          <a href="/contact">Contact</a>
+      </div>
+      <button class="mode-toggle" onclick="toggleMode()">🌙 Dark Mode</button>
+  </div>
+
+  <div class="profile-container">
+    <div class="profile-pic">
+      <img id="profilePreview" src="{{ user.profile_pic if user.profile_pic else url_for('static', filename='default-profile.png') }}" 
+           alt="Profile Picture">
+      
+      <!-- Hidden File Input -->
+      <input type="file" id="profileInput" class="hidden-input" accept="image/*" onchange="previewProfilePic(event)">
+      
+      <!-- Upload Button -->
+      <button class="upload-btn" onclick="document.getElementById('profileInput').click();">Upload New Photo</button>
+    </div>
+
+    <div class="user-info">
+      <span class="label">Full Name:</span> {{ user.first_name }} {{ user.last_name }}
+    </div>
+
+    <div class="user-info">
+      <span class="label">Email:</span> {{ user.email }}
+    </div>
+
+    <div class="user-info">
+      <span class="label">Username:</span> {{ user.username }}
+    </div>
+
+    <div class="user-info">
+      <span class="label">Phone:</span> {{ user.phone }}
+    </div>
+
+    <div class="user-info">
+      <span class="label">Address:</span> {{ user.address }}
+    </div>
+
+    <div class="user-info">
+      <span class="label">Date of Birth:</span> {{ user.dob }}
+    </div>
+
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+  </div>
+
+  <script>
+    function previewProfilePic(event) {
+      const reader = new FileReader();
+      reader.onload = function() {
+        document.getElementById('profilePreview').src = reader.result;
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function toggleMode() {
+      let body = document.body;
+      let modeButton = document.querySelector(".mode-toggle");
+      let isLight = body.classList.toggle("light-mode");
+      
+      if (isLight) {
+          modeButton.innerHTML = "☀️ Light Mode";
+          localStorage.setItem("theme", "light");
+      } else {
+          modeButton.innerHTML = "🌙 Dark Mode";
+          localStorage.setItem("theme", "dark");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("theme") === "light") {
+          document.body.classList.add("light-mode");
+          document.querySelector(".mode-toggle").innerHTML = "☀️ Light Mode";
+      }
+    });
+  </script>
+
+</body>
+</html>

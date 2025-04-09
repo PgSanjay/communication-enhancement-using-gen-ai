@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening & Repeating Quiz</title>
+    <style>
+        :root {
+            --bg-color: #10344b;
+            --text-color: #ffffff;
+            --card-bg: #2c3e50;
+            --nav-bg: rgba(30, 45, 65, 0.9);
+            --button-bg: #16a085;
+            --border-color: #16a085;
+        }
+        .light-mode {
+            --bg-color: #f7f9fc;
+            --text-color: #1a1a1a;
+            --card-bg: #ffffff;
+            --nav-bg: rgba(245, 245, 245, 0.9);
+            --button-bg: #ff8c00;
+            --border-color: #ff8c00;
+        }
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: 0.3s ease-in-out;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--nav-bg);
+            padding: 10px 20px;
+            width: 80%;
+            height:40px;
+            border-radius: 10px;
+            margin: 10px auto;
+            border: 2px solid var(--border-color);
+            
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        .quiz-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 50px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background: inherit;
+            color: inherit;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-links">
+            <a href="./home.html">Home</a>
+            <a href="./profile.html">Profile</a>
+            <a href="./articles.html">Articles</a>
+            <a href="./about">About</a>
+        </div>
+        <button id="toggle-mode">🌙 Dark Mode</button>
+    </div>
+
+    <h1>Listen & Repeat </h1>
+    <div class="quiz-container">
+        <button id="play-sentence">🔊 Listen to Sentence</button>
+        <button id="start-recording">🎤 Repeat Sentence</button>
+        <p id="recording-status"></p>
+        <textarea id="transcription-result" readonly placeholder="Your spoken sentence..."></textarea>
+        <textarea id="mistakes-result" readonly></textarea>
+        <textarea id="accuracy-result" readonly></textarea>
+        <button id="next-btn" disabled>Next</button>
+    </div>
+    <p id="final-score"></p>
+
+    <script>
+
+const sentences = [
+    "The beautiful sunset painted the sky in shades of orange, pink, and purple, creating a breathtaking view.",
+    "She enjoys reading novels on a quiet Sunday afternoon, sipping on a warm cup of chamomile tea.",
+    "We will be visiting the new science museum this weekend to explore the fascinating exhibits on space exploration.",
+    "Technology is evolving at an incredibly rapid pace, making it essential to keep learning new skills.",
+    "He bought fresh organic vegetables from the farmer’s market to prepare a healthy and delicious dinner.",
+    "Learning a new language requires patience, consistent practice, and a willingness to make mistakes and improve.",
+    "The train arrived at the station exactly on time, much to the relief of the passengers waiting on the platform.",
+    "They planned a surprise birthday party for their friend, decorating the entire house with balloons and streamers.",
+    "I prefer drinking a freshly brewed cup of coffee every morning while listening to relaxing classical music.",
+    "The curious little cat jumped onto the kitchen counter, knocking over a glass of milk in the process."
+];
+
+let currentIndex = 0;
+let totalScore = 0;
+const playBtn = document.getElementById("play-sentence");
+const recordBtn = document.getElementById("start-recording");
+const nextBtn = document.getElementById("next-btn");
+const transcriptionResult = document.getElementById("transcription-result");
+const mistakesResult = document.getElementById("mistakes-result");
+const accuracyResult = document.getElementById("accuracy-result");
+const finalScore = document.getElementById("final-score");
+
+// Play sentence
+function playSentence() {
+    const sentence = sentences[currentIndex];
+    const utterance = new SpeechSynthesisUtterance(sentence);
+    utterance.lang = "en-US";
+    speechSynthesis.speak(utterance);
+}
+
+// Evaluate speech
+function evaluateSpeech(correctSentence, spokenSentence) {
+    const correctWords = correctSentence.toLowerCase().split(" ");
+    const spokenWords = spokenSentence.toLowerCase().split(" ");
+
+    let matches = 0;
+    let totalWords = correctWords.length;
+
+    correctWords.forEach((word, index) => {
+        if (spokenWords[index] === word) {
+            matches++;
+        }
+    });
+
+    let accuracy = (matches / totalWords) * 100;
+    totalScore += accuracy;
+
+    accuracyResult.value = `Accuracy: ${accuracy.toFixed(2)}%`;
+    mistakesResult.value = accuracy === 100 ? "Perfect!" : `❌ Expected: "${correctSentence}"`;
+    nextBtn.disabled = false;
+}
+
+playBtn.addEventListener("click", playSentence);
+
+recordBtn.addEventListener("click", () => {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.start();
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript.trim();
+        transcriptionResult.value = transcript;
+        evaluateSpeech(sentences[currentIndex], transcript);
+    };
+});
+
+nextBtn.addEventListener("click", () => {
+    currentIndex++;
+    if (currentIndex < sentences.length) {
+        transcriptionResult.value = "";
+        mistakesResult.value = "";
+        accuracyResult.value = "";
+        nextBtn.disabled = true;
+    } else {
+        finalScore.innerText = `Quiz Complete! Average Accuracy: ${(totalScore / sentences.length).toFixed(2)}%`;
+    }
+});
+
+// Toggle Light/Dark Mode
+document.getElementById("toggle-mode").addEventListener("click", () => {
+    document.body.classList.toggle("light-mode");
+});
+
+    </script>
+</body>
+</html>
